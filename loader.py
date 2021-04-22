@@ -23,9 +23,9 @@ class YourDataset(Dataset):
         :param transform: apply some transforms like cropping, rotating, etc on input image
         """
 
-        df = pd.read_csv(txt_path, sep=',', col)
+        df = pd.read_csv(txt_path, sep=',', index_col=0)
         self.lables = df
-        self.img_names = df.name
+        self.img_names = df.index.values
         self.txt_path = txt_path
         self.img_dir = img_dir
         self.transform = transform
@@ -58,9 +58,7 @@ class YourDataset(Dataset):
         image = io.imread(path)
         return image
 
-    def get_label(self, name):
 
-        return self.labels[name]
 
     def __len__(self):
         """
@@ -81,7 +79,10 @@ class YourDataset(Dataset):
 
         if index == (self.__len__() - 1) and self.get_image_selector:  # close tarfile opened in __init__
             self.tf.close()
+        label = np.array(df.iloc[index][1:,],)
+        label = label.astype(int)
+        name = df.iloc[index][0]
 
-        sample = {'image': self.get_image_from_folder(index), 'landmarks': [1,3,4]}
+        sample = {'image': self.get_image_from_folder(name), 'label': label}
 
         return sample
