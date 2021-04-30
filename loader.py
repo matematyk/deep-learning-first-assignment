@@ -13,8 +13,8 @@ import torch
 import numpy
 
 
-class YourDataset(Dataset):
-    def __init__(self, txt_path='label.csv', img_dir='data', transform=None):
+class MyDataset(Dataset):
+    def __init__(self, txt_path='label.csv', img_dir='data', transform=, binary=True):
         """
         Initialize data set as a list of IDs corresponding to each item of data set
 
@@ -22,10 +22,9 @@ class YourDataset(Dataset):
         :param txt_path: a text file containing names of all of images line by line
         :param transform: apply some transforms like cropping, rotating, etc on input image
         """
-
-        df = pd.read_csv(txt_path, sep=',', index_col=0)
-        self.lables = df
-        self.img_names = df.index.values
+        self.binary = binary
+        self.df = pd.read_csv(txt_path, sep=',')
+        self.img_names = self.df.index.values
         self.txt_path = txt_path
         self.img_dir = img_dir
         self.transform = transform
@@ -44,6 +43,7 @@ class YourDataset(Dataset):
         image = self.tf.extractfile(name)
         image = image.read()
         image = Image.open(io.BytesIO(image))
+
         return image
 
     def get_image_from_folder(self, name):
@@ -56,6 +56,7 @@ class YourDataset(Dataset):
 
         path = os.path.join(self.img_dir, name)
         image = io.imread(path)
+        image = np.array(image).reshape((image.shape[2], image.shape[0], image.shape[1]))
         return image
 
 
@@ -79,10 +80,11 @@ class YourDataset(Dataset):
 
         if index == (self.__len__() - 1) and self.get_image_selector:  # close tarfile opened in __init__
             self.tf.close()
-        label = np.array(df.iloc[index][1:,],)
-        label = label.astype(int)
-        name = df.iloc[index][0]
+        label = np.array(self.df.iloc[index][1:,],)
+        if self.binary == True:
+            label = label.astype(bool)
+        label = label.astype(float)
+        name = self.df.iloc[index][0]
+        image = torch.from_numpy(self.get_image_from_folder(name)) / 255
 
-        sample = {'image': self.get_image_from_folder(name), 'label': label}
-
-        return sample
+        return image, label

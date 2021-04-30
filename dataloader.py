@@ -13,7 +13,7 @@ dataloader = DataLoader(transformed_dataset, batch_size=400,
 #https://stackoverflow.com/questions/384759/how-to-convert-a-pil-image-into-a-numpy-array
 import matplotlib.pyplot as plt
 
-s
+
 for i_batch, sample_batched in enumerate(dataloader):
     print(torch.squeeze(sample_batched['image'][:1,:,:,:1]).shape)
     fig, subplots = plt.subplots(1, 4)
