@@ -75,11 +75,7 @@ class ExerciseTrainer(object):
 
     def train(self):
         net = Net()
-
-
-
         optimizer = optim.Adam(net.parameters(), lr=0.0001)
-        
 
 
         for epoch in range(2):

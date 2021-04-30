@@ -14,7 +14,7 @@ import numpy
 
 
 class MyDataset(Dataset):
-    def __init__(self, txt_path='label.csv', img_dir='data', transform=, binary=True):
+    def __init__(self, txt_path='label.csv', img_dir='data', transform='', binary=True):
         """
         Initialize data set as a list of IDs corresponding to each item of data set
 

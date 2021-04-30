@@ -15,12 +15,12 @@ class Net(nn.Module):
         super(Net, self).__init__()
         modules = []
 
-        modules.append(nn.Conv2d(4, 16, 3, padding=1))
-        modules.append(nn.BatchNorm2d(16))
+        modules.append(nn.Conv2d(4, 32, 3, padding=1))
+        modules.append(nn.BatchNorm2d(32))
         modules.append(nn.ReLU())
         modules.append(nn.MaxPool2d(2))
 
-        modules.append(nn.Conv2d(16, 8, 3, padding=1))
+        modules.append(nn.Conv2d(32, 8, 3, padding=1))
         modules.append(nn.BatchNorm2d(8))
         modules.append(nn.ReLU())
         modules.append(nn.MaxPool2d(2))
@@ -72,17 +72,7 @@ class ExerciseTrainer(object):
             metric[i] = met
         return metric
 
-  
-
-
-    def train(self):
-        net = Net()
-
-
-        #criterion = nn.CrossEntropyLoss()
-
-        optimizer = optim.Adam(net.parameters(), lr=0.0001)
-        def own_loss(y, y_hat):
+    def own_loss(self, y, y_hat):
             loss = 0
             for i in range(y.shape[0]):
                 for j in range(y.shape[1]):
@@ -90,12 +80,17 @@ class ExerciseTrainer(object):
             return -loss / y.shape[0]
 
 
-        for epoch in range(2):
+    def train(self):
+        net = Net()
+
+        optimizer = optim.Adam(net.parameters(), lr=0.0001)
+
+        for epoch in range(20):
             running_loss = 0.0
             for inputs, labels in self.trainloader:
                 optimizer.zero_grad()
                 outputs = net(inputs)
-                loss = own_loss(labels, outputs)
+                loss = self.own_loss(labels, outputs)
                 loss.backward()
                 optimizer.step()
 
