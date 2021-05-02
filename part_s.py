@@ -6,7 +6,6 @@ import torch.optim as optim
 import torch.nn.functional as F
 import numpy as np
 from torch.autograd import Variable
-from sklearn.metrics import log_loss
 
 MB_SIZE = 512//2
 

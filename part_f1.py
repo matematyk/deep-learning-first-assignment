@@ -6,9 +6,17 @@ import torch.optim as optim
 import torch.nn.functional as F
 import numpy as np
 from torch.autograd import Variable
-from sklearn.metrics import log_loss
 
 MB_SIZE = 512//2
+
+class Reshape(nn.Module):
+    def __init__(self, *args):
+        super(Reshape, self).__init__()
+        self.shape = args
+
+    def forward(self, x):
+        print(x.shape)
+        return x.view(self.shape)
 
 class Net(nn.Module):
     def __init__(self):
@@ -28,7 +36,9 @@ class Net(nn.Module):
         modules.append(nn.Flatten())
         modules.append(nn.Linear(8 * 7 * 7, 60))
         modules.append(nn.ReLU())
-        modules.append(nn.Softmax(dim=1))
+        modules.append(Reshape(256,6,10))
+        modules.append(nn.Softmax(dim=2))
+        
 
         self.layers = nn.Sequential(*modules)
 
@@ -60,17 +70,15 @@ class ExerciseTrainer(object):
         self.testloader = torch.utils.data.DataLoader(
             transformed_validation, batch_size=1, shuffle=False, num_workers=4)
 
-    def additional_metrics(self, y_hat, y):
-        for i in range(0,5):
-            for j in range(0,9)
-                y[i][j]
 
-    def own_loss(y, y_hat):
-            loss = 0
-            for i in range(y.shape[0]):
-                for j in range(y.shape[1]):
-                    loss += y[i,j] * torch.log(y_hat[i,j]) + (1- y[i,j])*torch.log(1-y_hat[i,j])
-            return -loss / y.shape[0]
+    def own_loss(self, y_acc, y_hat):
+        J = 0 
+        for k in range(y_hat.shape[0]): 
+            for i in range(y_hat.shape[1]): #6
+                for j in range(y_hat.shape[2]): #10
+                    J  += y_hat[k][i][j]*(j - y_acc[k][i])** 2
+
+        return J
 
 
     def train(self):
@@ -83,7 +91,8 @@ class ExerciseTrainer(object):
             for inputs, labels in self.trainloader:
                 optimizer.zero_grad()
                 outputs = net(inputs)
-                loss = own_loss(labels, outputs)
+                loss = self.own_loss(labels, outputs)
+                print(loss)
                 loss.backward()
                 optimizer.step()
 
