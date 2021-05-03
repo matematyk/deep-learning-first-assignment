@@ -7,7 +7,7 @@ import torch.nn.functional as F
 import numpy as np
 from torch.autograd import Variable
 
-MB_SIZE = 512//2
+MB_SIZE = 2048
 
 class Reshape(nn.Module):
     def __init__(self, *args):
@@ -15,8 +15,7 @@ class Reshape(nn.Module):
         self.shape = args
 
     def forward(self, x):
-        print(x.shape)
-        return x.view(self.shape)
+        return x.view((x.shape[0],) + self.shape)
 
 class Net(nn.Module):
     def __init__(self):
@@ -36,7 +35,7 @@ class Net(nn.Module):
         modules.append(nn.Flatten())
         modules.append(nn.Linear(8 * 7 * 7, 60))
         modules.append(nn.ReLU())
-        modules.append(Reshape(256,6,10))
+        modules.append(Reshape(6,10))
         modules.append(nn.Softmax(dim=2))
         
 
@@ -54,14 +53,14 @@ class ExerciseTrainer(object):
                     transforms.CenterCrop(28),
                     transforms.ToTensor(),
                     transforms.Normalize((0.1307,), (0.3081,))
-                ]))
+                ]), binary=False)
         transformed_validation = MyDataset(txt_path='data/validation.csv', img_dir='data/',
                 transform=transforms.Compose([
                     transforms.Resize(28),
                     transforms.CenterCrop(28),
                     transforms.ToTensor(),
                     transforms.Normalize((0.1307,), (0.3081,))
-                ]))
+                ]), binary=False )
         
         self.trainloader = torch.utils.data.DataLoader(
             transformed_dataset, batch_size=MB_SIZE, shuffle=True, num_workers=4)
@@ -80,6 +79,18 @@ class ExerciseTrainer(object):
 
         return J
 
+    def additional_metrics(self, y_acc, y_hat):
+        metric = torch.zeros(y_hat.shape[0])
+        soft = torch.argmax(y_hat, dim=2)
+        for i in range(y_acc.shape[0]):
+            ids = torch.argsort(-y_acc[i])[0:2]
+            if torch.eq(soft[i][ids], y_acc[i][ids]).sum() == 2:
+                metric[i] = 1
+            else:
+                metric[i] = 0
+        return metric
+
+
 
     def train(self):
         net = Net()
@@ -93,6 +104,7 @@ class ExerciseTrainer(object):
                 outputs = net(inputs)
                 loss = self.own_loss(labels, outputs)
                 print(loss)
+                metric = self.additional_metrics(labels, outputs)
                 loss.backward()
                 optimizer.step()
 
@@ -106,12 +118,12 @@ class ExerciseTrainer(object):
                     images, labels = inputs, labels
                     outputs = net(images)
                     total += labels.size(0)
-                    metric = self.additional_metrics(outputs, labels)
+                    metric = self.additional_metrics(labels, outputs)
                     acc_add += metric
                     
 
             print('Accuracy of the network on the {} test images: {} %'.format(
-                total, acc_add/ (2*total)))
+                total, acc_add/ total))
 
 def main():
     trainer = ExerciseTrainer()
