@@ -34,6 +34,7 @@ class Net(nn.Module):
 
         modules.append(nn.Flatten())
         modules.append(nn.Linear(8 * 7 * 7, 60))
+        modules.append(nn.Dropout(0.25))
         modules.append(nn.ReLU())
         modules.append(Reshape(6,10))
         modules.append(nn.Softmax(dim=2))
@@ -52,16 +53,14 @@ class ExerciseTrainer(object):
                     transforms.Grayscale(num_output_channels=3),
                     transforms.Resize(28),
                     transforms.CenterCrop(28),
-                    transforms.ToTensor(),
-                    transforms.Normalize((0.1307,), (0.3081,))
+                    transforms.ToTensor()
                 ]), binary=False)
         transformed_validation = MyDataset(txt_path='data/validation.csv', img_dir='data/',
                 transform=transforms.Compose([
                     transforms.Grayscale(num_output_channels=3),
                     transforms.Resize(28),
                     transforms.CenterCrop(28),
-                    transforms.ToTensor(),
-                    transforms.Normalize((0.1307,), (0.3081,))
+                    transforms.ToTensor()
                 ]), binary=False )
         
         self.trainloader = torch.utils.data.DataLoader(
@@ -96,7 +95,7 @@ class ExerciseTrainer(object):
 
     def train(self):
         net = Net()
-        optimizer = optim.Adam(net.parameters(), lr=0.0001)
+        optimizer = optim.Adam(net.parameters(), lr=0.001)
 
 
         for epoch in range(20):

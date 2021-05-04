@@ -75,9 +75,8 @@ class ExerciseTrainer(object):
             str1 = " "
             labels.append((str1.join(y[i]))
         enc.fit(labels)
-        print(labels)
-        exit(-1)
-        
+
+        return enc        
 
     def own_loss(self, y_acc, y_hat):
         J = 0 
