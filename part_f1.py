@@ -7,7 +7,7 @@ import torch.nn.functional as F
 import numpy as np
 from torch.autograd import Variable
 
-MB_SIZE = 2048
+MB_SIZE = 512//2
 
 class Reshape(nn.Module):
     def __init__(self, *args):
@@ -97,13 +97,12 @@ class ExerciseTrainer(object):
         optimizer = optim.Adam(net.parameters(), lr=0.0001)
 
 
-        for epoch in range(2):
+        for epoch in range(20):
             running_loss = 0.0
             for inputs, labels in self.trainloader:
                 optimizer.zero_grad()
                 outputs = net(inputs)
                 loss = self.own_loss(labels, outputs)
-                print(loss)
                 metric = self.additional_metrics(labels, outputs)
                 loss.backward()
                 optimizer.step()
@@ -119,11 +118,12 @@ class ExerciseTrainer(object):
                     outputs = net(images)
                     total += labels.size(0)
                     metric = self.additional_metrics(labels, outputs)
-                    acc_add += metric
+                    acc_add += metric.sum()
+            print(acc_add)
                     
 
             print('Accuracy of the network on the {} test images: {} %'.format(
-                total, acc_add/ total))
+                total, acc_add))
 
 def main():
     trainer = ExerciseTrainer()

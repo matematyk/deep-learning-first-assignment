@@ -39,17 +39,11 @@ class ExerciseTrainer(object):
     def __init__(self):
         transformed_dataset = MyDataset(txt_path='data/labels.csv', img_dir='data/',
                 transform=transforms.Compose([
-                    transforms.Resize(28),
-                    transforms.CenterCrop(28),
-                    transforms.ToTensor(),
-                    transforms.Normalize((0.1307,), (0.3081,))
+                    transforms.Resize(28)
                 ]))
         transformed_validation = MyDataset(txt_path='data/validation.csv', img_dir='data/',
                 transform=transforms.Compose([
-                    transforms.Resize(28),
-                    transforms.CenterCrop(28),
-                    transforms.ToTensor(),
-                    transforms.Normalize((0.1307,), (0.3081,))
+                    transforms.Resize(28)
                 ]))
         
         self.trainloader = torch.utils.data.DataLoader(
@@ -108,7 +102,7 @@ class ExerciseTrainer(object):
                     
 
             print('Accuracy of the network on the {} test images: {} %'.format(
-                total, acc_add))
+                total, acc_add / (2*total)))
 
 def main():
     trainer = ExerciseTrainer()
