@@ -11,6 +11,7 @@ import pandas as pd
 from torch.utils.data import Dataset
 import torch
 import numpy
+from torchvision import transforms    
 
 
 class MyDataset(Dataset):
@@ -56,7 +57,12 @@ class MyDataset(Dataset):
 
         path = os.path.join(self.img_dir, name)
         image = io.imread(path)
-        image = np.array(image).reshape((image.shape[2], image.shape[0], image.shape[1]))
+        if self.transform:
+            image = transforms.ToPILImage()(image)
+            image = self.transform(image)
+        
+        #image = transforms.ToTensor()(image)
+        
         return image
 
 
@@ -85,6 +91,8 @@ class MyDataset(Dataset):
             label = label.astype(bool)
         label = label.astype(float)
         name = self.df.iloc[index][0]
-        image = torch.from_numpy(self.get_image_from_folder(name)) / 255
+        image = self.get_image_from_folder(name) / 255
+
+
 
         return image, label

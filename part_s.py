@@ -14,7 +14,7 @@ class Net(nn.Module):
         super(Net, self).__init__()
         modules = []
 
-        modules.append(nn.Conv2d(4, 32, 3, padding=1))
+        modules.append(nn.Conv2d(3, 32, 3, padding=1))
         modules.append(nn.BatchNorm2d(32))
         modules.append(nn.ReLU())
         modules.append(nn.MaxPool2d(2))
@@ -37,14 +37,20 @@ class Net(nn.Module):
         return x
 class ExerciseTrainer(object):
     def __init__(self):
-        transformed_dataset = MyDataset(txt_path='data/labels.csv', img_dir='data/',
+       transformed_dataset = MyDataset(txt_path='data/labels.csv', img_dir='data/',
                 transform=transforms.Compose([
-                    transforms.Resize(28)
-                ]))
+                    transforms.Resize(28),
+                    transforms.GaussianBlur(),
+                    transforms.CenterCrop(28),
+                    transforms.ToTensor()
+                ]), binary=False)
         transformed_validation = MyDataset(txt_path='data/validation.csv', img_dir='data/',
                 transform=transforms.Compose([
-                    transforms.Resize(28)
-                ]))
+                    transforms.Resize(28),
+                    transforms.GaussianBlur(),
+                    transforms.CenterCrop(28),
+                    transforms.ToTensor()
+                ]), binary=False )
         
         self.trainloader = torch.utils.data.DataLoader(
             transformed_dataset, batch_size=MB_SIZE, shuffle=True, num_workers=4)

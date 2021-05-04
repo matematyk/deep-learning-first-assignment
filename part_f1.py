@@ -22,7 +22,7 @@ class Net(nn.Module):
         super(Net, self).__init__()
         modules = []
 
-        modules.append(nn.Conv2d(4, 16, 3, padding=1))
+        modules.append(nn.Conv2d(3, 16, 3, padding=1))
         modules.append(nn.BatchNorm2d(16))
         modules.append(nn.ReLU())
         modules.append(nn.MaxPool2d(2))
@@ -49,6 +49,7 @@ class ExerciseTrainer(object):
     def __init__(self):
         transformed_dataset = MyDataset(txt_path='data/labels.csv', img_dir='data/',
                 transform=transforms.Compose([
+                    transforms.Grayscale(num_output_channels=3),
                     transforms.Resize(28),
                     transforms.CenterCrop(28),
                     transforms.ToTensor(),
@@ -56,6 +57,7 @@ class ExerciseTrainer(object):
                 ]), binary=False)
         transformed_validation = MyDataset(txt_path='data/validation.csv', img_dir='data/',
                 transform=transforms.Compose([
+                    transforms.Grayscale(num_output_channels=3),
                     transforms.Resize(28),
                     transforms.CenterCrop(28),
                     transforms.ToTensor(),
@@ -103,7 +105,9 @@ class ExerciseTrainer(object):
                 optimizer.zero_grad()
                 outputs = net(inputs)
                 loss = self.own_loss(labels, outputs)
+                print(loss)
                 metric = self.additional_metrics(labels, outputs)
+                print('treningowe accuracy:', metric.sum())
                 loss.backward()
                 optimizer.step()
 
