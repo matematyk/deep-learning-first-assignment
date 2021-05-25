@@ -26,8 +26,8 @@ class Net(nn.Module):
 
         modules.append(nn.Flatten())
         modules.append(nn.Linear(8 * 7 * 7, 6))
-        modules.append(nn.ReLU())
-        modules.append(nn.Softmax(dim=1))
+        modules.append(nn.ReLU()) #TODO remove
+        modules.append(nn.Softmax(dim=1)) #TODO sigmoid
 
         self.layers = nn.Sequential(*modules)
 
